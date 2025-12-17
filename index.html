@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Key Auth</title>
+<style>
+body{
+  font-family:-apple-system;
+  background:#0f172a;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.box{
+  background:#020617;
+  padding:20px;
+  border-radius:12px;
+  width:90%;
+  max-width:320px;
+}
+input,button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:8px;
+  border:none;
+  font-size:16px;
+}
+button{
+  background:#22c55e;
+  font-weight:bold;
+}
+#msg{margin-top:12px}
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h3>🔐 Nhập Key</h3>
+  <input id="key" placeholder="Key của bạn">
+  <button onclick="check()">Xác nhận</button>
+  <div id="msg"></div>
+</div>
+
+<script>
+const KEY_URL="https://raw.githubusercontent.com/USERNAME/REPO/main/keys.json";
+
+if(localStorage.getItem("auth")==="ok"){
+  document.body.innerHTML="<h2>✅ Đã xác thực</h2>";
+}
+
+async function check(){
+  const k=document.getElementById("key").value.trim();
+  const msg=document.getElementById("msg");
+
+  if(!k){msg.innerHTML="❌ Chưa nhập key";return;}
+
+  try{
+    const r=await fetch(KEY_URL);
+    const data=await r.json();
+
+    if(!data[k]){
+      msg.innerHTML="❌ Key sai";
+      return;
+    }
+
+    if(new Date()>new Date(data[k])){
+      msg.innerHTML="⛔ Key hết hạn";
+      return;
+    }
+
+    localStorage.setItem("auth","ok");
+    msg.innerHTML="✅ Thành công";
+    setTimeout(()=>location.reload(),1000);
+
+  }catch{
+    msg.innerHTML="⚠️ Lỗi kết nối";
+  }
+}
+</script>
+
+</body>
+</html>
